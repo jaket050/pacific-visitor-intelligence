@@ -130,5 +130,41 @@ All 84 files were bulk-downloaded via `scripts/ingestion/download_gvb_pdfs.sh` (
 retry scripts for filename mismatches). Every file was verified for a non-trivial file
 size (>5KB) to rule out silently saved error pages.
 
-## Source: US Census Island Areas 2020
-*To be documented once files are sourced*
+## Source: US Census Bureau — 2020 Island Areas Census (DECIA), Guam
+
+**Portal:** data.census.gov, filtered to "2020: DECIA Guam Demographic and Housing
+Characteristics" (the Guam-specific Island Areas program, not the standard
+50-state Decennial Census product)
+
+**Table 1 sourced:** `raw_data/census/guam_dhc/2020_census_p3_race_ethnicity.csv`
+(Table ID: P3, confirmed from filename — note the on-screen product picker
+labeled this "P1" but the actual downloaded file metadata says P3; trust the
+file, not the UI label)
+
+**Contents:** Full race and ethnicity breakdown for Guam, including CHamoru
+as a distinct line (50,420 people, matches official press release figure
+exactly) nested under Native Hawaiian and Other Pacific Islander (70,809),
+alongside Asian subgroups, White, Black, multiracial combinations, etc.
+
+### Known Structural Issues
+
+1. **BOM character at file start.** File begins with an invisible byte-order-mark
+   character before "Label". Must load with `encoding='utf-8-sig'` in pandas,
+   not default utf-8, or the first column header will silently fail to match.
+
+2. **Numbers stored as comma-formatted text**, e.g. `"153,836"` not `153836`.
+   Requires `.str.replace(',', '')` and cast to int before any aggregation.
+
+3. **Hierarchy encoded as leading whitespace indentation**, not a separate
+   parent-category column. E.g. "Chamorro" has 12 leading spaces (3 levels
+   deep: Total > One Race > NHPI > Chamorro). Cleaning script must parse
+   indent depth to reconstruct the category tree, not treat this as a flat list.
+
+### Still to Source (Phase 1 continues)
+- Median household income by race/ethnicity of householder (confirms $61,028
+  CHamoru figure from press release)
+- Poverty status by race/ethnicity (confirms 28.5% NHPI figure)
+- Housing tenure and home value by village
+- Language spoken at home by age group
+- CHamoru diaspora population by US state (separate source: ACS, not DECIA —
+  covers the 50 states, not Guam)

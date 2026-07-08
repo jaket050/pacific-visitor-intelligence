@@ -52,3 +52,13 @@
   fixed subcategory list per market.
 - Extraction strategy is now considered validated across a 5-year span.
   Ready to proceed to full Phase 2 build.
+## 2026-07-08 — Phase 1: First Census Table Sourced (Guam Race/Ethnicity)
+- Sourced 2020 Island Areas Census Table P3 (Race/Ethnicity) for Guam via
+  data.census.gov, searched by keyword "Chamorro" after initial P1 table
+  turned out to be population-count-only
+- Confirmed Chamorro population: 50,420 (matches official Census press
+  release exactly)
+- Documented structural issues: BOM character requiring utf-8-sig encoding,
+  comma-formatted number strings, whitespace-based hierarchy encoding
+- Four more Census tables still needed: income/poverty by ethnicity, housing
+  tenure/value, language at home by age, and CHamoru diaspora by US state (ACS)
