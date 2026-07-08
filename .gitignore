@@ -1,0 +1,30 @@
+# Raw data files - too large for GitHub, store locally
+raw_data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment and secrets - NEVER commit API keys
+.env
+*.env
+secrets.py
+config.py
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Outputs - regenerated from code
+outputs/
+
+# Snowflake credentials
+snowflake_config.json
