@@ -27,3 +27,15 @@
   via pdfplumber, unlike HTA's direct-readable Excel files. "Preliminary" vs
   "final" labeling is inconsistent across GVB's own filenames — flagged for
   an is_estimated field in the Phase 3 data model.
+## 2026-07-07 — Phase 1.5: GVB PDF Extraction Proof-of-Concept
+- Tested pdfplumber extraction on 2023-09-arrival-summary.pdf before committing
+  to a full 84-file cleaning pipeline
+- Found each PDF has 6 pages of inconsistent layouts (infographic, formal table,
+  YTD comparison, monthly matrix)
+- Page 3 and 4 (formal tables) extract cleanly via extract_text() + regex
+- Pages 5-6 (monthly matrix) are unreliable via extract_tables() - garbled digit
+  splitting. Decision: skip these pages, reconstruct monthly trend from page 3
+  of each of the 84 files instead
+- This changes the Phase 2 approach: text+regex parsing on specific pages,
+  not blind extract_tables() across the whole document
+- Still need to confirm this layout holds across 2018-2024, not just 2023

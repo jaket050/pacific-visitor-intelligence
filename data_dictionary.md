@@ -77,11 +77,30 @@ country, hotel occupancy rates, and tax collections for the given month.
    the Phase 3 data model (already planned for), defaulting to TRUE unless a report
    explicitly says final.
 
-3. **PDF extraction quality is unverified as of Phase 1.** These are scanned/generated
-   PDF tables, not spreadsheets. Table structure consistency across 84 files (2018-2024)
-   has not yet been tested. Phase 2 must validate extracted totals against at least one
-   independently known figure per year (e.g., published annual totals from GVB Annual
-   Reports) before trusting the full extraction pipeline.
+3. **PDF extraction tested via proof-of-concept (2023-09 file). Results: mixed by page.**
+   Each GVB monthly PDF contains 6 pages of different layouts, not one clean table:
+   - Pages 1-2 (infographic summary): mostly unusable for structured extraction —
+     icon-based visual layout, not real tabular data
+   - Page 3 ("Visitor Arrival Summary" formal table): CLEAN. Reliable line-by-line
+     text via extract_text(), consistent "Label  value  value  %" pattern. This is
+     the primary extraction target — contains month total + full country/region
+     breakdown.
+   - Page 4 (CYTD/FYTD comparison table): CLEAN. Same extraction approach as page 3.
+   - Pages 5-6 (12-month rolling matrix): BROKEN via extract_tables() — pdfplumber
+     garbles multi-column dense numeric layout, splitting digits across cells.
+     DECISION: skip these pages entirely. They are redundant — our own pipeline
+     reconstructs the same month-over-month view by processing all 84 files
+     sequentially using the clean data from page 3 of each file.
+
+   Phase 2 extraction strategy: use extract_text() + regex line parsing on pages 3
+   and 4 only, anchored on label text (TOTAL VISITOR ARRIVALS, JAPAN, KOREA, etc.)
+   at the start of each line. Do NOT use extract_tables() for this source — tested
+   and found unreliable on the dense numeric matrix layout.
+
+   Still to validate before trusting the full 84-file extraction: confirm this
+   6-page structure and page 3/4 layout is consistent across all years (early
+   2018-2020 files may differ from the 2023 format tested here) and confirm
+   extracted totals match published annual figures.
 
 ### Sourcing Rule
 All 84 files were bulk-downloaded via `scripts/ingestion/download_gvb_pdfs.sh` (+ 2
