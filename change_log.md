@@ -39,3 +39,16 @@
 - This changes the Phase 2 approach: text+regex parsing on specific pages,
   not blind extract_tables() across the whole document
 - Still need to confirm this layout holds across 2018-2024, not just 2023
+## 2026-07-07 — Phase 1.5: GVB Layout Drift Test (2018 vs 2023)
+- Tested 2018-01-arrival-summary.pdf against the 2023-09 baseline
+- CONFIRMED drift: 2018 files have 4 pages, 2023 have 6. Core table page
+  position shifts from page 2 (2018) to page 3 (2023)
+- Extraction method itself (extract_text + regex) works identically once
+  the correct page is found -- fix is content-based page matching, not a
+  different parsing approach
+- Also found: Korea sub-region categories (Chungbuk, Gangwon, Jeonnam,
+  Ulsan) appear/disappear across years due to a 2017 customs form change,
+  noted directly in the source file. Phase 2 cleaning must not assume a
+  fixed subcategory list per market.
+- Extraction strategy is now considered validated across a 5-year span.
+  Ready to proceed to full Phase 2 build.

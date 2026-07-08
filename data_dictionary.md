@@ -97,10 +97,33 @@ country, hotel occupancy rates, and tax collections for the given month.
    at the start of each line. Do NOT use extract_tables() for this source — tested
    and found unreliable on the dense numeric matrix layout.
 
-   Still to validate before trusting the full 84-file extraction: confirm this
-   6-page structure and page 3/4 layout is consistent across all years (early
-   2018-2020 files may differ from the 2023 format tested here) and confirm
-   extracted totals match published annual figures.
+   4. **CONFIRMED: page count and page position drift between years.** Tested
+   2018-01 against 2023-09. 2018 files have 4 pages total; 2023 files have 6.
+   The core "Visitor Arrival Summary" table sits on page 2 in 2018 but page 3
+   in 2023. The CYTD/FYTD table sits on page 3 in 2018 but page 4 in 2023.
+
+   RESOLUTION: extraction must never assume a fixed page number. Instead,
+   scan every page's extract_text() output and match on the page's first
+   line of text:
+   - Page whose text starts with "Visitor Arrival Summary" -> the core
+     monthly table (TOTAL VISITOR ARRIVALS + full market breakdown)
+   - Page whose text contains "Calendar Year-to-Date" -> the CYTD/FYTD table
+   This mirrors the RowNum anchoring strategy used for HTA: never trust
+   position, always trust a stable content marker.
+
+   GOOD NEWS: the actual extraction method (extract_text() + regex line
+   parsing) works identically on both years once the correct page is located.
+   The garbled extract_tables() problem found on 2023's monthly matrix pages
+   is avoided entirely since we only ever target these two content-anchored
+   pages, never the matrix/infographic pages.
+
+   Still unverified: label/subcategory consistency within KOREA and other
+   markets. 2018 shows *Chungbuk, *Gangwon, *Jeonnam, *Ulsan appearing and
+   disappearing between years (noted in-file: "Due to the implementation of
+   the New Customs Forms in December 2017, countries have been added or
+   omitted based on visitor market trends"). This is a content/schema
+   consistency issue for Phase 2, not an extraction issue -- cleaning script
+   must handle variable subcategory lists per market, not assume a fixed set.
 
 ### Sourcing Rule
 All 84 files were bulk-downloaded via `scripts/ingestion/download_gvb_pdfs.sh` (+ 2
