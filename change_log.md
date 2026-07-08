@@ -14,3 +14,16 @@
 - Documented label inconsistencies (Domestic/International vs On Domestic/
   International Flights) and sheet name variants (Korean vs Korea)
 - Identified RowNum column as the stable anchor for cleaning logic
+## 2026-07-07 — Phase 1: Guam GVB Data Sourced
+- Bulk-downloaded 84 monthly Arrival Summary PDFs (Jan 2018 - Dec 2024) via
+  scripts/ingestion/download_gvb_pdfs.sh
+- First pass: 50/84 succeeded. GVB's filename convention switches between
+  hyphens and underscores inconsistently across years with no predictable pattern.
+- Two retry scripts (download_gvb_pdfs_retry.sh, download_gvb_pdfs_retry2.sh)
+  resolved the remaining 34 files by reading exact filenames directly off the
+  live GVB page rather than pattern-guessing.
+- Verified all 84 files present and none under 5KB (rules out saved error pages).
+- Documented in data_dictionary.md: PDF format requires Phase 2 table extraction
+  via pdfplumber, unlike HTA's direct-readable Excel files. "Preliminary" vs
+  "final" labeling is inconsistent across GVB's own filenames — flagged for
+  an is_estimated field in the Phase 3 data model.
