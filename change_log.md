@@ -62,3 +62,19 @@
   comma-formatted number strings, whitespace-based hierarchy encoding
 - Four more Census tables still needed: income/poverty by ethnicity, housing
   tenure/value, language at home by age, and CHamoru diaspora by US state (ACS)
+## 2026-07-15 — Phase 1: Chamorro-Specific Income Table Sourced (CT14)
+- After two dead-end searches in the DHC product (PBG43, PCT74/75 -- both
+  capped at "NHPI alone"), found the correct product: "Detailed Cross
+  Tabulation," which breaks income down to Chamorro/Carolinian/Chuukese/etc.
+- CONFIRMED Chamorro median household income: $61,028 (matches press
+  release exactly)
+- Table structure is fundamentally different from P3: wide/pivoted single-row
+  format with 1,000+ coded columns, requiring a metadata-join to decode,
+  vs. P3's simple long/hierarchical format
+- Found CRITICAL comparability warning in source notes: 2020 Guam data
+  excludes military housing and COVID-era group quarters population,
+  making it explicitly NOT comparable to 2010 data without adjustment.
+  This must be flagged on any historical trend visualization.
+- Also found: this Census release uses raw unformatted numbers (no commas),
+  opposite convention from the P3 file -- cleaning script cannot assume
+  consistent number formatting across different Census products

@@ -97,7 +97,7 @@ country, hotel occupancy rates, and tax collections for the given month.
    at the start of each line. Do NOT use extract_tables() for this source — tested
    and found unreliable on the dense numeric matrix layout.
 
-   4. **CONFIRMED: page count and page position drift between years.** Tested
+4. **CONFIRMED: page count and page position drift between years.** Tested
    2018-01 against 2023-09. 2018 files have 4 pages total; 2023 files have 6.
    The core "Visitor Arrival Summary" table sits on page 2 in 2018 but page 3
    in 2023. The CYTD/FYTD table sits on page 3 in 2018 but page 4 in 2023.
