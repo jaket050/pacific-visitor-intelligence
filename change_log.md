@@ -78,3 +78,17 @@
 - Also found: this Census release uses raw unformatted numbers (no commas),
   opposite convention from the P3 file -- cleaning script cannot assume
   consistent number formatting across different Census products
+## 2026-07-15 — Phase 1: Chamorro Poverty Table Sourced (CT15)
+- Found immediately via direct search "poverty status Chamorro" -- same
+  Detailed Cross Tabulation product as CT14, confirming that search pattern
+  now works reliably for this product family
+- CONFIRMED Chamorro family poverty rate: 17.5%, vs. Chuukese: 58.0% in the
+  same table -- over 3x gap masked by the aggregate NHPI-alone figure (28.5%)
+  found earlier. Documented the metric/population-scope difference clearly
+  to avoid future confusion between individual vs. family poverty rates.
+- Discovered a THIRD distinct file structure: this "Table-view CSV" export
+  is long-format with ethnicity embedded in column headers via "!!"
+  delimiters -- different from both P3 (whitespace-hierarchy) and CT14
+  (wide/coded-columns). Confirmed number formatting (comma vs raw-digit)
+  is tied to download FORMAT choice, not the underlying Census product.
+- Two Census tables remaining: housing tenure/value, language at home by age

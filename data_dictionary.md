@@ -232,7 +232,65 @@ DHC-product tables capped at "NHPI alone" -- not granular enough. The
 correct product name to search for granular ethnicity data is specifically
 "Detailed Cross Tabulation," a separate release from the standard DHC tables.
 
+## Table CT15 Sourced: Poverty Status by Race/Ethnicity of Householder
+
+**File:** `raw_data/census/guam_income_poverty/2020_census_ct15_poverty_by_ethnicity.csv`
+
+**Source product:** Same "Detailed Cross Tabulation" release as CT14, found
+immediately via the same search pattern this time (searched "poverty status
+Chamorro" directly).
+
+**CONFIRMED: Chamorro family poverty rate = 17.5%.** Sits right next to
+Chuukese at 58.0% in the same table -- a greater than 3x gap between two
+ethnic groups that the broader "NHPI alone" aggregate (28.5% individual
+poverty rate, sourced earlier from PBG-series tables) was masking entirely.
+IMPORTANT: the 28.5% figure measures INDIVIDUALS NHPI-alone; this 17.5%
+measures FAMILIES specifically Chamorro. Different metric, different
+population scope -- not a contradiction, but must be labeled precisely on
+any dashboard panel to avoid implying they measure the same thing.
+
+Also includes breakdowns by family structure (married couple / male
+householder no spouse / female householder no spouse) and by presence and
+age of children (under 18, under 5) and by age of individuals (18+, 65+).
+Rich enough to show whether poverty concentrates in single-parent
+households or elderly residents, by specific ethnicity.
+
+### Known Structural Issues (a THIRD distinct format, different from P3 and CT14)
+
+1. **Long format** (one row per label/statistic), same general shape as P3 --
+   NOT the wide single-row format CT14's raw Data.csv used. This is the
+   "Table-view CSV" export option; CT14 was downloaded as the "ZIP:
+   machine-readable" option instead. LESSON: the SAME Census product can
+   export in fundamentally different shapes depending on which download
+   format is selected at download time. Always inspect the actual file,
+   never assume format based on table ID or product name alone.
+
+2. **Ethnicity encoded directly in column headers**, using "!!" as a
+   hierarchy delimiter, e.g. "Guam!!One Race!!Native Hawaiian and Other
+   Pacific Islander!!Chamorro". This is actually the CLEANEST structure
+   found so far -- a pandas melt() on column names split by "!!" cleanly
+   separates geography, race tier, and specific ethnicity into their own
+   fields.
+
+3. **Comma-formatted number strings** ("145,543" not 145543) -- same
+   convention as P3, OPPOSITE of CT14's raw-digit Data.csv. Confirms number
+   formatting is tied to DOWNLOAD FORMAT CHOICE (Table-view CSV vs.
+   machine-readable ZIP), not to the underlying Census product itself.
+   Cleaning script must never assume a single number-formatting convention
+   applies project-wide -- must check per file.
+
+4. **Same BOM character issue as P3** -- requires utf-8-sig encoding.
+
+5. **Blank cells represent category headers with no data of their own**
+   (e.g. "ALL INCOME LEVELS IN 2019" row has empty values across all
+   columns -- it's a section label, not a missing data point). Cleaning
+   script must distinguish structural header rows from true missing/
+   suppressed values (which use the N/-/+ symbols documented for CT14).
+
 ### Still to Source (Phase 1 continues)
-- Poverty status by race/ethnicity (likely also in this same CT-series --
-  check for a poverty-specific CT table number using the same "Detailed
-  Cross Tabulation" search approach)
+- Housing tenure and home value by village (likely back in the DHC product,
+  not Detailed Cross Tabulation, since this is a housing not income/poverty
+  measure -- may reintroduce the "NHPI alone" ceiling; check if a village-
+  level Chamorro-specific housing table exists at all)
+- Language spoken at home by age group
+- CHamoru diaspora population by US state (ACS, not DECIA)
