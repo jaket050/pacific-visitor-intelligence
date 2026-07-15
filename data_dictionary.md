@@ -160,11 +160,79 @@ alongside Asian subgroups, White, Black, multiracial combinations, etc.
    deep: Total > One Race > NHPI > Chamorro). Cleaning script must parse
    indent depth to reconstruct the category tree, not treat this as a flat list.
 
+## Table CT14 Sourced: Income by Race/Ethnicity of Householder
+
+**Files:** `raw_data/census/guam_income_poverty/ct14_income_by_ethnicity/`
+(3 files: -Data.csv, -Column-Metadata.csv, -Table-Notes.txt)
+
+**Source product:** "2020: DECIA Guam Detailed Crosstabulations" — a DIFFERENT
+Census product than the P3 table (which came from "DECIA Guam Demographic and
+Housing Characteristics"/DHC). Detailed Crosstabulations is the only product
+that breaks ethnicity down to the Chamorro/Carolinian/Chuukese level for
+income and poverty; DHC and standard DHC-derived tables (PBG43, PCT74/75)
+only go as fine as "NHPI alone."
+
+**CONFIRMED: Chamorro median household income = $61,028** (matches official
+press release exactly). Full income distribution across 12 brackets also
+included, plus mean income, earnings, wage/salary, self-employment, Social
+Security, public assistance, and retirement income breakdowns -- all by
+specific ethnicity (Carolinian, Chamorro, Chuukese, Kosraean, Marshallese,
+Palauan, Pohnpeian, Yapese, plus Asian subgroups, White, Hispanic origin
+groups, etc.)
+
+### Known Structural Issues (very different shape than P3)
+
+1. **Wide/pivoted format, not long format.** ONE row represents the entirety
+   of Guam. Over 1,000 columns, each a unique ethnicity x income-metric
+   combination. This is the opposite structure from P3, which had one row
+   per category. Cleaning script cannot reuse the P3 indent-parsing approach --
+   this needs a metadata-join: match Column-Metadata.csv's "Label" text
+   (e.g. containing "Chamorro" AND "Median household income") to find the
+   right coded column name, then pull that column's value from Data.csv.
+
+2. **Column headers are opaque codes** (CT14_COL1_R1, CT14_COL1_R2, ...),
+   decoded only via the separate Column-Metadata.csv file. Never hardcode
+   column positions -- always join on the metadata file's Label text.
+
+3. **Numbers here are RAW digits, no comma formatting** (e.g. "61028" not
+   "61,028") -- opposite convention from the P3 file, which used
+   comma-formatted text. Cleaning script must NOT assume consistent number
+   formatting across different Census table exports, even within the same
+   overall Census release.
+
+4. **Suppression/special-value symbols require explicit handling, not silent
+   NaN coercion:**
+   - `N` = data not displayed (reliability concern / too few cases)
+   - `-` = insufficient observations, OR median falls in lowest bracket
+     (context-dependent meaning -- same symbol, two different meanings)
+   - `+` = median falls in highest open-ended bracket
+   - `(X)` = not applicable
+   Cleaning script must map these to explicit flags, not just pd.to_numeric
+   with errors='coerce', which would silently convert all four to identical
+   NaN and lose the distinction.
+
+5. **CRITICAL COMPARABILITY WARNING (from source Table-Notes.txt):** 2020
+   Guam data EXCLUDES military housing units (operational change) AND
+   EXCLUDES group quarters population (COVID-19 collection impact). The
+   Census Bureau explicitly warns these 2020 tables should NOT be compared
+   to 2010 or earlier data for the same measures without accounting for
+   this. THIS AFFECTS ANY FUTURE 2010-vs-2020 TREND ANALYSIS using this
+   table or related income/poverty tables. Must be flagged prominently on
+   any dashboard panel or chart that would otherwise imply a clean
+   historical trend line.
+
+6. **This table has no village-level breakdown** -- unlike P3, which had a
+   column per village (Adacao CDP, Afame CDP, etc.), CT14 only reports at
+   the whole-of-Guam level. Likely due to small-sample reliability concerns
+   for detailed ethnicity x income cross-tabs at finer geography.
+
+### Sourcing note
+Found only after two earlier search attempts (PBG43, PCT74/75) surfaced
+DHC-product tables capped at "NHPI alone" -- not granular enough. The
+correct product name to search for granular ethnicity data is specifically
+"Detailed Cross Tabulation," a separate release from the standard DHC tables.
+
 ### Still to Source (Phase 1 continues)
-- Median household income by race/ethnicity of householder (confirms $61,028
-  CHamoru figure from press release)
-- Poverty status by race/ethnicity (confirms 28.5% NHPI figure)
-- Housing tenure and home value by village
-- Language spoken at home by age group
-- CHamoru diaspora population by US state (separate source: ACS, not DECIA —
-  covers the 50 states, not Guam)
+- Poverty status by race/ethnicity (likely also in this same CT-series --
+  check for a poverty-specific CT table number using the same "Detailed
+  Cross Tabulation" search approach)
